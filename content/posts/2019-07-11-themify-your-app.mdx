@@ -1,0 +1,84 @@
+---
+title: Themify your app with Custom Properties
+date: 2019-07-11
+---
+
+My current side-project is an open SaaS platform to manage call for papers called [Conference Hall](https://github.com/bpetetot/conference-hall). When I started it, I wanted to have different themes following the user's role. A blue theme if you are a speaker, and a red one for organizers.
+
+The application is currently built with React and there are plenty of ways to build a theming system using providers, hooks, styled components, css-in-js etc. But I wanted to keep it simple and closed to what it's supposed to be: "style". So I decided to use one of the new powers of CSS: ["Custom Properties"](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties) (or CSS variables) and its inheritance system. 
+
+**Here a [live demo](https://codepen.io/bpetetot/pen/bPzeJZ) and explanations following.**
+
+### Themify with custom properties
+
+First declare a default theme with all custom properties needed for the theme. 
+
+```css
+.default-theme {
+  --background-color: #FFF;
+  --font-color: #000;
+}
+```
+
+Set the default theme class to the `body` (or an other root element). This element and its children will have access to the variables.
+
+```html
+<body class="default-theme">
+...
+</body>
+```
+
+These variables can be used in your CSS through the `var()` function.
+
+```css
+body {
+  background: var(--background-color);
+  color: var(--font-color);
+}
+```
+
+> **So, what should we do to change the theme of the app ?**
+
+Declare a new CSS class with the custom properties to override in the new theme, then apply it to the element. Thanks to the inheritance of custom properties you have the dark mode in your application.
+
+```css
+.dark-theme {
+  --background-color: #000;
+  --font-color: #FFF;
+}
+```
+```html
+<body class="default-theme dark-theme">
+...
+</body>
+```
+
+### Apply theme to sub-components
+
+If you use the custom properties (`var()`) in all your sub-compoments the theme will be automatically applied.
+
+But you may build your components independently from your application (with Storybook, DocZ, etc.) and the theming system implies that some of your components should use these custom properties. So if you want to have a component that renders correctly without declaring CSS variable, you can:
+- Pass the CSS variable through a color props to the component;
+- Pass class or style with CSS variables to the component;
+- Or use the CSS variable inside of it with a fallback value (2nd parameter of the `var` function):
+
+```css
+.my-component {
+  background: var(--background-color, #DDD), 
+}
+```
+
+### Browser compatibility
+
+Most browsers already support custom properties except Internet Explorer. But if you want to keep a fallback for IE you can add an additional property in the CSS class. Of course, theme switching will not work on IE with custom properties.
+
+```css
+.my-component {
+  background: #DDD, 
+  background: var(--background-color, #DDD), 
+}
+```
+
+All the theming system of my application [Conference Hall](https://github.com/bpetetot/conference-hall) is entirely based on custom properties and works very well. I hope it will help you.
+
+**See the live demo in codepen:** https://codepen.io/bpetetot/pen/bPzeJZ
