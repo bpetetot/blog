@@ -21,7 +21,7 @@ module.exports = {
       {
         name: `Linkedin`,
         url: `https://www.linkedin.com/in/benjamin-petetot-29b99a54/`,
-      }
+      },
     ],
   },
 }
