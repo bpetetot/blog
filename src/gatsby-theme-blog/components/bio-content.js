@@ -1,10 +1,8 @@
 import React, { Fragment } from "react"
-import { Styled } from "theme-ui"
 
 export default () => (
   <Fragment>
-    Hello world, I'm{" "}
-    <Styled.a href="http://example.com/">Benjamin Petetot</Styled.a>.
+    <b>Benjamin Petetot</b>
     <br />
     <small>
       Web developer, Open source advocate and conference organizer.

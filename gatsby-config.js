@@ -11,13 +11,17 @@ module.exports = {
     description: `Let's talk about code, tech and open source`,
     social: [
       {
-        name: `twitter`,
+        name: `Twitter`,
         url: `https://twitter.com/bpetetot`,
       },
       {
-        name: `github`,
+        name: `Github`,
         url: `https://github.com/bpetetot`,
       },
+      {
+        name: `Linkedin`,
+        url: `https://www.linkedin.com/in/benjamin-petetot-29b99a54/`,
+      }
     ],
   },
 }
