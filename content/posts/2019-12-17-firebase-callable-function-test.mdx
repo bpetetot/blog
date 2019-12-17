@@ -1,0 +1,146 @@
+---
+title: Firebase callable functions tests with emulator suite
+date: 2019-12-17
+---
+
+The Firebase emulator suite brings lot of new capabilities to test your Firebase code. In this article, I will experiment testing callable functions with jest and the Firestore emulator.
+
+Here is a short callable function incrementing a counter document:
+
+```js
+// increment.js
+const functions = require('firebase-functions')
+const admin = require('firebase-admin')
+
+async function increment({ counterId, value }) {
+  // get the counter document
+  const ref = await admin
+    .firestore()
+    .collection('counters')
+    .doc(counterId)
+    .get()
+
+  const counter = await ref.data()
+
+  // increment and save the new counter value
+  await admin
+    .firestore()
+    .collection('counters')
+    .doc(counterId)
+    .update({ value: counter.value + value })
+}
+
+module.exports = {
+  increment: functions.https.onCall(increment),
+}
+```
+
+To test the function with jest and the emulator we will need to:
+- Execute jest and the emulator
+- Mock `firebase-functions` and `firebase-admin`
+- Write the test
+
+### Execute the emulator with jest
+
+Following the [Firebase emulator documentation](https://firebase.google.com/docs/firestore/security/test-rules-emulator), you need to install the emulator with this command:
+
+```shell
+firebase setup:emulators:firestore
+```
+
+Then, execute the emulator and the jest test suite:
+
+```shell
+firebase emulators:exec --only firestore "jest"
+```
+
+The emulator will start, then run the test suite, finally shut down the emulator after the tests run. You can add it as a test script in your `package.json` file. If you want to run jest in watch mode, just set `"jest --watch"` in the previous command.
+
+
+### Mock `firebase-functions`
+
+For the test, we will directly execute the function, without using `firebase-functions`. So let's create a simple mock to retrieve exported callable function. Add a file `firebase-functions.js` in a `__mocks__` folder:
+
+```js
+// __mocks__/firebase-functions.js
+module.exports = {
+  https: { onCall: func => func },
+}
+```
+
+The mock will directly return the function given to `functions.https.onCall`, so we will able to execute it directly within the tests.
+
+
+### Mock `firebase-admin`
+
+`firebase-admin` is used to get the Firebase `app` instance. We will replace it by the `@firebase/testing` app to be able to use the emulator. Add a file the `firebase-admin.js` in the `__mocks__` folder:
+
+```js
+// __mocks__/firebase-admin.js
+const firebase = require('@firebase/testing')
+
+module.exports = firebase.initializeAdminApp({ projectId: "projectId" })
+```
+
+
+**Now we are ready to write tests and we will be able to use Firestore emulator to store, retrieve and test data.**
+
+## Write the tests
+
+Thanks to the mocks, the emulator and `@firebase/testing`, you can:
+- Directly execute your function.
+- Create and retrieve documents in your test.
+- Clear firestore database before each tests to get isolated tests.
+
+```js
+// increment.spec.js
+const firebase = require('@firebase/testing')
+const admin = require('firebase-admin')
+
+// use mocks
+jest.mock('firebase-admin')
+jest.mock('firebase-functions')
+
+const { increment } = require('./increment')
+
+describe('Increment function', () => {
+  afterAll(async () => {
+    // close connexions to emulator
+    await Promise.all(firebase.apps().map(app => app.delete()))
+  })
+
+  beforeEach(async () => {
+    // clear firestore data before each tests
+    await firebase.clearFirestoreData({ projectId: 'projectId' })
+  })
+
+  it('Should be able to increment the given counter', async () => {
+    // create a counter document
+    const counterId = 'counter1'
+    await admin
+      .firestore()
+      .collection('counters')
+      .doc(counterId)
+      .set({ value: 10 })
+
+    // call the 'increment' function
+    await increment({ counterId, value: 20 })
+
+    // get the counter to test the incremented value
+    const updatedCounter = await admin
+      .firestore()
+      .collection('counters')
+      .doc(counterId)
+      .get()
+
+    // check if we correctly get the counter document
+    await firebase.assertSucceeds(updatedCounter)
+
+    // check the counter value
+    const { value } = await updatedCounter.data()
+    expect(value).toBe(30)
+  })
+})
+```
+
+Here you can now test your cloud functions locally and in isolation using Firestore emulator. 🎉
