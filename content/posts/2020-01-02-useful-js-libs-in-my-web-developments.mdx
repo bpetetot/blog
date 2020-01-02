@@ -1,0 +1,103 @@
+---
+title: Useful JS libs in my web developments
+date: 2020-01-02
+---
+
+<img src="https://thepracticaldev.s3.amazonaws.com/i/bneftu1792fgglw4fsp2.jpg" width="100%" />
+
+Here a few useful Javascript libraries I'm using in my web projects. Some are famous, some should be. None are framework oriented, you can use it with React, Angular, Vue, JQuery etc.
+
+### lodash
+
+Always useful, **[lodash](https://lodash.com)** is a set of utilities to handle strings, iterables, collections, functions. Don't reinvent the wheel, you will find what you need in lodash. 2 things to keep in mind when you use it in a webapp.
+
+1. Don't forget to import only the module you need. You don't want to import all lodash utilities in your final bundle.
+2. `lodash/fp` module will you give the ability to use it in a functional programming style.
+
+```js
+// import only the debounce function from lodash/fp
+import debounce from 'lodash/fp/debounce'
+
+const debounced = debounce(250)(search) // debounce the search function
+```
+
+### date-fns
+
+Like lodash, **[date-fns](https://date-fns.org)** has a bunch of functions but dedicated to handle dates. This is a great alternative to [moment.js](https://momentjs.com) It uses the native Javascript `Date` object and you can import only the modules you need. Formatting, parsing, operations... most of date use cases can be done with date-fns.
+
+```js
+import formatRelative from 'date-fns/formatRelative'
+import subDays from 'date-fns/subDays'
+
+formatRelative(subDays(new Date(), 3), new Date())
+//=> "last Friday at 7:26 p.m."
+```
+
+**[Day.js](https://github.com/iamkun/dayjs)** is also a good alternative to moment.js. It is a minimalist lib (only 2KB) with almost the same complete API.
+
+### validator.js
+
+In web development, you always need to validate user's inputs. **[validator.js](https://github.com/validatorjs/validator.js)** contains all the validation functions you need: email, alpha, currency, credit cards, MAC address, etc. More than 60 validators! 
+
+```js
+import isEmail from 'validator/lib/isEmail'
+
+isEmail('foo@bar.com') // true
+```
+
+### intl-messageformat
+
+**[intl-messageformat](https://github.com/formatjs/formatjs/tree/master/packages/intl-messageformat)** provides a way to manage and format your app's string messages into localized strings. It uses the [ICU Message syntax](http://userguide.icu-project.org/formatparse/messages) and works for all [CLDR languages](http://cldr.unicode.org) which have pluralization rules defined.
+
+```js
+import IntlMessageFormat from 'intl-messageformat';
+
+const photos = `You have {numPhotos, plural,
+    =0 {no photos.}
+    =1 {one photo.}
+    other {# photos.}
+}`
+
+const messages = new IntlMessageFormat(photos, 'en-US');
+
+console.log(msg.format({numPhotos: 0}));    // => "You have no photos."
+console.log(msg.format({numPhotos: 1}));    // => "You have one photo."
+console.log(msg.format({numPhotos: 1000})); // => "You have 1,000 photos."
+```
+
+### DOMPurify
+
+In some webapp, I needed to sanitize HTML string coming from the user or external sources. Most of libs I found were very heavy. [DOMPurify](https://github.com/cure53/DOMPurify) is one of the lowest and fastest sanitizer. Very easy to use, you can also override its default configuration.
+
+```js
+DOMPurify.sanitize('<img src=x onerror=alert(1)//>'); // becomes <img src="x">
+DOMPurify.sanitize('<svg><g/onload=alert(2)//<p>'); // becomes <svg><g></g></svg>
+DOMPurify.sanitize('<p>abc<iframe/\/src=jAva&Tab;script:alert(3)>def'); // becomes <p>abcdef</p>
+DOMPurify.sanitize('<math><mi//xlink:href="data:x,<script>alert(4)</script>">'); // becomes <math><mi></mi></math>
+DOMPurify.sanitize('<TABLE><tr><td>HELLO</tr></TABL>'); // becomes <table><tbody><tr><td>HELLO</td></tr></tbody></table>
+```
+
+### Feather icons
+
+[Feather icons](https://feathericons.com) is just an awesome set of beautiful open source icons.
+
+![Alt Text](https://thepracticaldev.s3.amazonaws.com/i/lzgooqqamqp5dg6yt5l6.png)
+
+
+### Faker.js
+
+You are tired to use lorem ipsum text or `foo`, `bar`, `baz` in your unit tests and mockups. So. You have to check **[faker.js](https://github.com/marak/Faker.js)**. It can generate addresses, company names, account numbers, phone numbers, images and so on. It supports multiple languages and locales. [Here a complete demo](https://rawgit.com/Marak/faker.js/master/examples/browser/index.html)
+
+```js
+import faker from 'faker'
+
+faker.name.findName() // Rowan Nikolaus
+faker.internet.email() // Kassandra.Haley@erich.biz
+faker.helpers.createCard() // random contact card containing many properties
+```
+
+
+**And you. Which lib do you use in your web projects?**
+ 
+
+
