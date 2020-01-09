@@ -1,0 +1,94 @@
+---
+title: Build your own Codelab with Google Codelab
+date: 2020-01-09
+---
+
+<img src="https://thepracticaldev.s3.amazonaws.com/i/mhdrh66soq2s54fetmo7.jpg" width="100%" />
+
+Codelabs and workshops are a great way to learn new technologies or languages, but it's time-consuming to write and structure. They are very useful as documentation so if you don't want to read this post further, you can follow [the codelab](https://bpetetot.github.io/claat-image) 😉.
+
+[Google has a great platform](https://codelabs.developers.google.com) providing guided tutorials about their products or technologies. 
+
+![Google Developer platform with over 500 codelabs]
+(https://thepracticaldev.s3.amazonaws.com/i/ce9tqdwtohb9e9xa2v0e.png)
+*Google Developer platform with over 500 codelabs*
+
+![A codelab using codelab tool suite](https://thepracticaldev.s3.amazonaws.com/i/7fk4z58h97evdb955en5.png)
+*A codelab using google tool suite*
+
+Thanks to their experience, they provide a suite of tools for authoring and serving codelabs.
+
+### Write a codelab
+
+There are two ways to write a codelab. Either directly in a Google Doc, where you can easily collaborate with multiple contributors, but you can't easily manage the source control. Either you can use a simple markdown file to write a complete codelab and push it in any git repository.
+
+So first, you need to create a simple Markdown file, it will contain all the codelab content.
+
+```markdown
+id: id-of-the-codelab
+summary: The codelab description
+authors: Your name
+
+# Here the main title of the codelab
+<!-- ------------------------ -->
+## Step 1 heading here 
+Duration: 1
+
+### Here a sub heading
+- How to foo.
+- How to bar.
+
+<!-- ------------------------ -->
+## Step 2 heading here 
+Duration: 5
+
+Lot of features are available, you can:
+- add code snippets
+- use hyperlinks
+- embed images
+```
+*A simple example of the Markdown syntax*
+
+On the top of the file, some metadata describes the codelab (id, summary, category, authors, etc.). Markdown `heading` levels define the codelab structure and the different steps. You can find a [complete Codelab Formatting Guide](https://github.com/googlecodelabs/tools/blob/master/FORMAT-GUIDE.md) explaining the codelab structure with Markdown.
+
+Lot of features are available, you can use all the power of Markdown by adding code snippets, hyperlinks or images.
+
+### Build a codelab
+
+Google provides a CLI named [claat tool](https://github.com/googlecodelabs/tools/tree/master/claat) (Codelabs as a Thing). It generates HTML files from a Markdown file or a Google doc. But it needs some prerequisites: `Go` and `node` have to be installed on your computer. To avoid this annoying install process, I made a [light docker image](https://hub.docker.com/r/bpetetot/claat) to use claat.
+
+First pull the image:
+```docker
+docker pull bpetetot/claat
+```
+
+Then execute claat on your markdown file:
+```docker
+docker container run -it -v $(pwd):/app bpetetot/claat export my-codelab.md
+```
+
+Now you have a full HTML static codelab, you can deploy it with your favorite hosting provider.
+
+When you are working on the codelab, you can serve it on localhost:
+```docker
+docker container run -it -p 9090:9090 -v $(pwd):/app bpetetot/claat serve -addr 0.0.0.0:9090 my-codelab.md
+```
+
+Now you can create amazing codelabs and documentation. 🎉
+
+### Here a simple example
+
+- The markdown file:
+https://github.com/bpetetot/claat-image/blob/master/howto.md
+- The codelab online:
+https://bpetetot.github.io/claat-image
+
+
+*Some useful resources:*
+- Google codelabs tools on GitHub: https://github.com/googlecodelabs/tools
+- Formatting guide: https://github.com/googlecodelabs/tools/blob/master/FORMAT-GUIDE.md
+- Claat image on Docker Hub:
+https://hub.docker.com/r/bpetetot/claat
+- Claat image on GitHub:
+https://github.com/bpetetot/claat-image
+
